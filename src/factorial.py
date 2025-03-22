@@ -9,8 +9,8 @@ import sys
 
 def factorial(num): 
     if num < 0: 
-        print("Factorial de un número negativo no existe")
-        return 0
+        print(f"Factorial de un número negativo ({num}) no existe")
+        return None
     elif num == 0: 
         return 1
     else: 
@@ -20,21 +20,44 @@ def factorial(num):
             num -= 1
         return fact 
 
-# Verificar si se proporcionó un argumento
+def procesar_rango(rango_str):
+    # Verificar si es un rango (contiene '-')
+    if '-' in rango_str:
+        try:
+            inicio, fin = map(int, rango_str.split('-'))
+            return inicio, fin
+        except ValueError:
+            print("Formato de rango inválido. Use el formato 'inicio-fin' (ejemplo: 4-8)")
+            sys.exit(1)
+    else:
+        # Si no es un rango, intentar procesar como un único número
+        try:
+            num = int(rango_str)
+            return num, num  # Devolver el mismo número como inicio y fin
+        except ValueError:
+            print("Entrada inválida. Debe ser un número o un rango 'inicio-fin'")
+            sys.exit(1)
+
+# Determinar si se proporcionó un argumento
 if len(sys.argv) < 2:
-    # Solicitar el número al usuario mediante input
-    try:
-        num = int(input("Por favor, ingrese un número para calcular su factorial: "))
-    except ValueError:
-        print("Debe ingresar un número válido!")
-        sys.exit()
+    # Solicitar el rango al usuario mediante input
+    rango_str = input("Ingrese un número o rango (ejemplo: 5 o 4-8): ")
 else:
     # Usar el argumento proporcionado
-    try:
-        num = int(sys.argv[1])
-    except ValueError:
-        print("El argumento debe ser un número válido!")
-        sys.exit()
+    rango_str = sys.argv[1]
 
-print("Factorial", num, "! es", factorial(num))
+# Procesar el rango ingresado
+inicio, fin = procesar_rango(rango_str)
+
+# Verificar que el rango sea válido
+if inicio > fin:
+    print(f"El rango {inicio}-{fin} no es válido. El inicio debe ser menor o igual al fin.")
+    sys.exit(1)
+
+# Calcular y mostrar los factoriales para el rango
+print(f"Calculando factoriales para el rango {inicio}-{fin}:")
+for num in range(inicio, fin + 1):
+    resultado = factorial(num)
+    if resultado is not None:
+        print(f"Factorial {num}! = {resultado}")
 
