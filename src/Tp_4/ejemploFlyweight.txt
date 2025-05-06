@@ -1,0 +1,65 @@
+Ejemplo práctico: Renderizado de caracteres en un procesador de texto
+
+Situación:
+Supongamos que estás desarrollando un procesador de texto (como Word o Google Docs). Un documento puede tener millones de caracteres,
+pero la mayoría de esos caracteres comparten ciertos atributos comunes:
+
+# La forma de la letra (tipografía, tamaño, estilo).
+
+# Pero su posición en el documento y su contenido (carácter específico) varía.
+
+Cómo aplica Flyweight:
+# Se crea una clase Flyweight que representa el formato compartido: fuente, estilo, tamaño, color, etc.
+
+# Cada carácter en el texto no almacena todo eso, sino que comparte una instancia Flyweight.
+
+# Solo se almacena de manera separada la posición y el carácter real.
+
+
+
+codigo ejemplo: 
+
+# Flyweight: contiene formato compartido
+class FormatoTexto:
+    def __init__(self, fuente, tamaño, color):
+        self.fuente = fuente
+        self.tamaño = tamaño
+        self.color = color
+
+    def mostrar_formato(self):
+        return f"Fuente: {self.fuente}, Tamaño: {self.tamaño}, Color: {self.color}"
+
+# Flyweight Factory: evita crear formatos duplicados
+class FormatoFactory:
+    _formatos = {}
+
+    @classmethod
+    def obtener_formato(cls, fuente, tamaño, color):
+        clave = (fuente, tamaño, color)
+        if clave not in cls._formatos:
+            cls._formatos[clave] = FormatoTexto(fuente, tamaño, color)
+        return cls._formatos[clave]
+
+# Objeto que usa el Flyweight
+class CaracterTexto:
+    def __init__(self, caracter, posicion, formato: FormatoTexto):
+        self.caracter = caracter
+        self.posicion = posicion  # posición en el documento (índice)
+        self.formato = formato
+
+    def mostrar(self):
+        print(f"'{self.caracter}' en posición {self.posicion} --> {self.formato.mostrar_formato()}")
+
+# Cliente
+if __name__ == "__main__":
+    texto = "Hola mundo"
+
+    # Todos comparten el mismo formato
+    formato = FormatoFactory.obtener_formato("Arial", 12, "Negro")
+
+    # Crear caracteres individuales con contenido y posición
+    caracteres = [CaracterTexto(c, i, formato) for i, c in enumerate(texto)]
+
+    # Mostrar todos los caracteres
+    for c in caracteres:
+        c.mostrar()
