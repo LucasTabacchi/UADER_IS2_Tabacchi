@@ -21,7 +21,7 @@ import sys
 
 def main():
     if len(sys.argv) < 2:
-        print("Uso: python getJason.py <archivo_json> [clave]")
+        print("Sin argumentos suficientes, uso: python getJason.py <archivo_json> [clave]")
         sys.exit(1)
 
     jsonfile = sys.argv[1]
