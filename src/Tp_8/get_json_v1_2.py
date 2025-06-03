@@ -34,7 +34,10 @@ class JsonReaderSingleton:
         if not os.path.isfile(path):
             raise FileNotFoundError(f"Archivo no encontrado: {path}")
         with open(path, 'r', encoding='utf-8') as f:
-            return json.load(f)
+            try:
+                return json.load(f)
+            except json.JSONDecodeError as e:
+                raise ValueError(f"Error al parsear JSON: {e}")
 
 # ----------------------------
 # Clase que representa un pago
@@ -78,12 +81,14 @@ class CuentaPagoHandler:
     def procesar_pago(self, pedido_id, monto):
         if self.saldo >= monto:
             self.saldo -= monto
+            print(f"[{self.token}] Pago procesado para pedido #{pedido_id}, monto: ${monto}")
             return Pago(pedido_id, self.token, monto)
         elif self.siguiente:
             return self.siguiente.procesar_pago(pedido_id, monto)
         else:
-            print(f"No hay fondos suficientes para el pedido #{pedido_id}.")
+            print(f"[{self.token}] Fondos insuficientes para pedido #{pedido_id}")
             return None
+
 
 # -----------------------------------------------------------------
 # Clase principal de la aplicación
@@ -106,7 +111,6 @@ class ProcesadorPagosApp:
 
         # Cadena: cuenta1 → cuenta2
         self.cuenta1.set_siguiente(self.cuenta2)
-        self.cuenta2.set_siguiente(self.cuenta1)  # balanceo circular
 
         self.turno = 0  # alternancia
 
